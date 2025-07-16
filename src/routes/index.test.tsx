@@ -12,7 +12,7 @@ test('has create game button', async () => {
 });
 
 test('is able to create game', async () => {
-	const {getByRole, getByText, getAllByRole, getByLabelText} = render(() => <Index />);
+	const {getByText, getAllByRole, getByLabelText} = render(() => <Index />);
 
 	{
 		const maxCorrectAnswersInput = getByLabelText('Max Correct Answers:');

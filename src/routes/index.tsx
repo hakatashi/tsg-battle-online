@@ -63,7 +63,9 @@ const Index: Component = () => {
 									name="maxCorrectAnswers"
 									value={maxCorrectAnswers()}
 									min="1"
-									onChange={(event) => setMaxCorrectAnswers(Number(event.currentTarget?.value))}
+									onChange={(event) =>
+										setMaxCorrectAnswers(Number(event.currentTarget?.value))
+									}
 								/>
 							</label>
 						</div>
@@ -74,7 +76,9 @@ const Index: Component = () => {
 									type="number"
 									name="answer"
 									value={answer()}
-									onChange={(event) => setAnswer(Number(event.currentTarget?.value))}
+									onChange={(event) =>
+										setAnswer(Number(event.currentTarget?.value))
+									}
 								/>
 							</label>
 						</div>
