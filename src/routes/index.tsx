@@ -1,5 +1,5 @@
 import {createSignal, type Component, type JSX} from 'solid-js';
-import {auth, Tasks} from '~/lib/firebase';
+import {auth, Games} from '~/lib/firebase';
 import {useAuth, useFirestore} from 'solid-firebase';
 import Collection from '~/lib/Collection';
 import {addDoc, orderBy, query, Timestamp} from 'firebase/firestore';
@@ -7,11 +7,12 @@ import {addDoc, orderBy, query, Timestamp} from 'firebase/firestore';
 import styles from './index.module.css';
 
 const Index: Component = () => {
-	const tasks = useFirestore(query(Tasks, orderBy('createdAt', 'asc')));
+	const games = useFirestore(query(Games, orderBy('createdAt', 'desc')));
 	const authState = useAuth(auth);
-	const [newTask, setNewTask] = createSignal('');
+	const [maxCorrectAnswers, setMaxCorrectAnswers] = createSignal(10);
+	const [answer, setAnswer] = createSignal(0);
 
-	const onSubmitTask: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+	const onSubmitGame: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
 		event,
 	) => {
 		event.preventDefault();
@@ -21,34 +22,69 @@ const Index: Component = () => {
 			return;
 		}
 
-		await addDoc(Tasks, {
-			task: newTask(),
-			uid: authState.data.uid,
+		await addDoc(Games, {
+			id: crypto.randomUUID(),
 			createdAt: Timestamp.now(),
+			rules: {
+				maxCorrectAnswers: maxCorrectAnswers(),
+			},
+			players: [authState.data.uid],
+			configs: {
+				answer: answer(),
+			},
 		});
 
-		setNewTask('');
+		setMaxCorrectAnswers(10);
+		setAnswer(0);
 	};
 
 	return (
-		<ul class={styles.tasks}>
-			<Collection data={tasks}>
-				{(taskData) => <li class={styles.task}>{taskData.task}</li>}
-			</Collection>
-			<li class={styles.addTask}>
-				<form onSubmit={onSubmitTask}>
-					<input
-						type="text"
-						name="task"
-						value={newTask()}
-						onChange={(event) => setNewTask(event.currentTarget?.value)}
-					/>
-					<button type="submit" disabled={!authState.data}>
-						Add Task
-					</button>
-				</form>
-			</li>
-		</ul>
+		<div>
+			<h1>Games</h1>
+			<ul class={styles.tasks}>
+				<Collection data={games}>
+					{(gameData) => (
+						<li class={styles.task}>
+							<div>Game ID: {gameData.id}</div>
+							<div>Max Correct Answers: {gameData.rules.maxCorrectAnswers}</div>
+							<div>Players: {gameData.players.length}</div>
+							<div>Answer: {gameData.configs.answer}</div>
+							<div>Created: {gameData.createdAt.toDate().toLocaleString()}</div>
+						</li>
+					)}
+				</Collection>
+				<li class={styles.addTask}>
+					<form onSubmit={onSubmitGame}>
+						<div>
+							<label>
+								Max Correct Answers:
+								<input
+									type="number"
+									name="maxCorrectAnswers"
+									value={maxCorrectAnswers()}
+									min="1"
+									onChange={(event) => setMaxCorrectAnswers(Number(event.currentTarget?.value))}
+								/>
+							</label>
+						</div>
+						<div>
+							<label>
+								Answer:
+								<input
+									type="number"
+									name="answer"
+									value={answer()}
+									onChange={(event) => setAnswer(Number(event.currentTarget?.value))}
+								/>
+							</label>
+						</div>
+						<button type="submit" disabled={!authState.data}>
+							Create Game
+						</button>
+					</form>
+				</li>
+			</ul>
+		</div>
 	);
 };
 

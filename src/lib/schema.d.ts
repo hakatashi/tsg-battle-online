@@ -11,3 +11,15 @@ export interface Task extends DocumentData {
 	task: string;
 	createdAt: Timestamp;
 }
+
+export interface Game extends DocumentData {
+	id: string;
+	createdAt: Timestamp;
+	rules: {
+		maxCorrectAnswers: number;
+	};
+	players: string[];
+	configs: {
+		answer: number;
+	};
+}

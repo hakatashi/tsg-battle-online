@@ -5,33 +5,41 @@ import Index from './index.js';
 
 const user = userEvent.setup();
 
-test('has add task button', async () => {
+test('has create game button', async () => {
 	const {getByRole} = render(() => <Index />);
-	const addTaskButton = getByRole('button');
-	expect(addTaskButton).toHaveTextContent('Add Task');
+	const createGameButton = getByRole('button');
+	expect(createGameButton).toHaveTextContent('Create Game');
 });
 
-test('is able to add task', async () => {
-	const {getByRole, getByText, getAllByRole} = render(() => <Index />);
+test('is able to create game', async () => {
+	const {getByRole, getByText, getAllByRole, getByLabelText} = render(() => <Index />);
 
 	{
-		const taskInput = getByRole('textbox');
-		expect(taskInput).toHaveValue('');
+		const maxCorrectAnswersInput = getByLabelText('Max Correct Answers:');
+		expect(maxCorrectAnswersInput).toHaveValue(10);
 
-		const addTaskButton = getByText('Add Task');
-		expect(addTaskButton).not.toBeDisabled();
+		const answerInput = getByLabelText('Answer:');
+		expect(answerInput).toHaveValue(0);
 
-		const tasks = getAllByRole('listitem');
-		expect(tasks).toHaveLength(1);
+		const createGameButton = getByText('Create Game');
+		expect(createGameButton).not.toBeDisabled();
 
-		await user.type(taskInput, 'Hello, World!');
-		await user.click(addTaskButton);
+		const games = getAllByRole('listitem');
+		expect(games).toHaveLength(1);
+
+		await user.clear(maxCorrectAnswersInput);
+		await user.type(maxCorrectAnswersInput, '5');
+		await user.clear(answerInput);
+		await user.type(answerInput, '42');
+		await user.click(createGameButton);
 	}
 
 	await waitFor(
 		() => {
-			const taskInput = getByRole('textbox');
-			expect(taskInput).toHaveValue('');
+			const maxCorrectAnswersInput = getByLabelText('Max Correct Answers:');
+			expect(maxCorrectAnswersInput).toHaveValue(10);
+			const answerInput = getByLabelText('Answer:');
+			expect(answerInput).toHaveValue(0);
 		},
 		{
 			timeout: 1000,
@@ -39,10 +47,11 @@ test('is able to add task', async () => {
 	);
 
 	{
-		const tasks = getAllByRole('listitem');
-		expect(tasks).toHaveLength(2);
+		const games = getAllByRole('listitem');
+		expect(games).toHaveLength(2);
 
-		const lastTask = tasks[tasks.length - 2];
-		expect(lastTask).toHaveTextContent('Hello, World!');
+		const lastGame = games[games.length - 2];
+		expect(lastGame).toHaveTextContent('Max Correct Answers: 5');
+		expect(lastGame).toHaveTextContent('Answer: 42');
 	}
 });

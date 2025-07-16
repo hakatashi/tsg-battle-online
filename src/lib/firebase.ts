@@ -7,7 +7,7 @@ import {
 	collection,
 	type CollectionReference,
 } from 'firebase/firestore';
-import type {Task} from './schema.ts';
+import type {Task, Game} from './schema.ts';
 
 const firebaseConfigResponse = await fetch('/__/firebase/init.json');
 const firebaseConfig = await firebaseConfigResponse.json();
@@ -24,7 +24,8 @@ if (import.meta.env.DEV && !isServer) {
 }
 
 const Tasks = collection(db, 'tasks') as CollectionReference<Task>;
+const Games = collection(db, 'games') as CollectionReference<Game>;
 
 await signInAnonymously(auth);
 
-export {app as default, auth, db, Tasks};
+export {app as default, auth, db, Tasks, Games};
