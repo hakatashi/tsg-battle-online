@@ -45,7 +45,9 @@ const Index: Component = () => {
 				<Collection data={games}>
 					{(gameData) => (
 						<li class={styles.task}>
-							<div>Game ID: {gameData.id}</div>
+							<div>
+								<a href={`/games/${gameData.id}`}>Game ID: {gameData.id}</a>
+							</div>
 							<div>Max Correct Answers: {gameData.rules.maxCorrectAnswers}</div>
 							<div>Players: {gameData.players.length}</div>
 							<div>Answer: {gameData.configs.answer}</div>
