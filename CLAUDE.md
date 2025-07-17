@@ -54,10 +54,13 @@ This is a SolidStart application with Firebase backend:
 ### Testing
 
 - Tests require Firebase emulators to be running
-- Use `npm run test` to start emulators and run tests together
-- Individual test runs use `npm run test:vitest` (requires emulators already running)
+- Use `npm test` to start emulators and run tests together
 
 ## Best Practices
+
+### TypeScript
+
+- Avoid using `any` type. Prefer specific types or `unknown` when necessary
 
 ### TypeScript with Firestore
 

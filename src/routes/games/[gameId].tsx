@@ -1,6 +1,6 @@
 import {useParams} from '@solidjs/router';
 import {doc, type DocumentReference} from 'firebase/firestore';
-import type {Component} from 'solid-js';
+import {createSignal, type JSX, type Component} from 'solid-js';
 import {useFirestore} from 'solid-firebase';
 import {db} from '~/lib/firebase';
 import Doc from '~/lib/Doc';
@@ -9,37 +9,43 @@ import type {Game} from '~/lib/schema';
 const GameDetail: Component = () => {
 	const params = useParams();
 
+	const [userAnswer, setUserAnswer] = createSignal(0);
+
 	const game = useFirestore(
 		doc(db, 'games', params.gameId) as DocumentReference<Game>,
 	);
+
+	const onSubmitAnswer: JSX.EventHandler<HTMLFormElement, SubmitEvent> = async (
+		event,
+	) => {
+		event.preventDefault();
+		const form = event.currentTarget;
+		if (!game.data || !form) {
+			return;
+		}
+
+		if (userAnswer() === game.data.configs.answer) {
+			alert('Correct answer!');
+		} else {
+			alert('Wrong answer, try again!');
+		}
+	};
 
 	return (
 		<div>
 			<h1>Game Details</h1>
 			<Doc data={game} fallback={<p>Game not found</p>}>
-				{(gameData: Game) => (
+				{(gameData) => (
 					<div>
-						<h2>Game ID: {gameData.id}</h2>
 						<div>
-							<h3>Rules</h3>
-							<p>Max Correct Answers: {gameData.rules.maxCorrectAnswers}</p>
-						</div>
-						<div>
-							<h3>Players</h3>
-							<p>Number of Players: {gameData.players.length}</p>
-							<ul>
-								{gameData.players.map((player) => (
-									<li>{player}</li>
-								))}
-							</ul>
-						</div>
-						<div>
-							<h3>Configuration</h3>
 							<p>Answer: {gameData.configs.answer}</p>
-						</div>
-						<div>
-							<h3>Created</h3>
-							<p>{gameData.createdAt.toDate().toLocaleString()}</p>
+							<form onSubmit={onSubmitAnswer}>
+								<input
+									type="number"
+									value={userAnswer()}
+									onInput={(e) => setUserAnswer(Number(e.currentTarget.value))}
+								/>
+							</form>
 						</div>
 					</div>
 				)}
